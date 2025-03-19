@@ -17,6 +17,7 @@ import com.belajar.fluxtask.domain.model.Task;
 import com.belajar.fluxtask.domain.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import com.belajar.fluxtask.infrastructure.messaging.KafkaProducerService;
 
 /**
  *
@@ -30,7 +31,7 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskMapper taskMapper;
     private final TaskRepository taskRepository;
-    // private final KafkaProducerService KafkaProducerService;
+    private final KafkaProducerService kafkaProducerService;
 
     @Value("${fluxtask.task.max-retries}")
     private int maxRetries;
@@ -38,12 +39,12 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskResponse createTask(TaskRequest taskRequest) {
-        // TODO: Add send task to Kafka
-
         Task task = taskMapper.toTask(taskRequest);
         Task savedTask = taskRepository.save(task);
 
+        kafkaProducerService.sendTaskToKafka(savedTask);
         log.info("Task created and sent to Kafka: {}", savedTask.getId());
+
         return taskMapper.toTaskResponse(savedTask);
     }
 
@@ -84,8 +85,7 @@ public class TaskServiceImpl implements TaskService {
         
         if(task.canRetry(maxRetries)) {
             log.info("retrying task: {} (current total attempt: {})", task.getId(), task.getRetryCount());
-            
-            // TODO: add send to kafka
+            kafkaProducerService.sendTaskToKafka(task);
         } else {
             log.error("Task {} failed after attempts: {}", task.getId(), maxRetries);
         }
