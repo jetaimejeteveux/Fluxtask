@@ -7,6 +7,7 @@ package com.belajar.fluxtask.application.mapper;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import org.springframework.stereotype.Component;
 import com.belajar.fluxtask.application.dto.TaskRequest;
 import com.belajar.fluxtask.application.dto.TaskResponse;
 import com.belajar.fluxtask.domain.model.Task;
@@ -15,6 +16,8 @@ import com.belajar.fluxtask.domain.model.Task;
  *
  * @author firman
  */
+
+@Component
 public class TaskMapper {
     public Task toTask(TaskRequest taskRequest) {
         return Task.builder()
