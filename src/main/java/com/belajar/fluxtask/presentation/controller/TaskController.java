@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.belajar.fluxtask.application.dto.TaskRequest;
 import com.belajar.fluxtask.application.dto.TaskResponse;
 import com.belajar.fluxtask.application.service.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,7 @@ public class TaskController {
     private final TaskService taskService;
 
     @PostMapping
+    @Operation(summary = "Create a new task", description = "Add a new task to the system")
     public ResponseEntity<TaskResponse> createTask(@Valid @RequestBody TaskRequest taskRequest) {
         log.info("Received request to create task: {}", taskRequest);
         TaskResponse taskResponse = taskService.createTask(taskRequest);
@@ -43,6 +45,7 @@ public class TaskController {
     }
 
     @GetMapping("/{taskId}")
+    @Operation(summary = "Get all tasks", description = "Retrieve task based on ID")
     public ResponseEntity<TaskResponse> getTaskById(@PathVariable UUID taskId) {
         log.info("Received request to get task: {}", taskId);
         TaskResponse taskResponse = taskService.getTaskById(taskId);
