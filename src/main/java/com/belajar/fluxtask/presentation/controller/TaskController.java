@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.UUID;
 import org.apache.catalina.connector.Response;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,14 +42,14 @@ public class TaskController {
     public ResponseEntity<TaskResponse> createTask(@Valid @RequestBody TaskRequest taskRequest) {
         log.info("Received request to create task: {}", taskRequest);
         TaskResponse taskResponse = taskService.createTask(taskRequest);
-        return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(taskResponse);
     }
 
     @GetMapping("/{taskId}")
     public ResponseEntity<TaskResponse> getTaskById(@PathVariable UUID taskId) {
         log.info("Received request to get task: {}", taskId);
         TaskResponse taskResponse = taskService.getTaskById(taskId);
-        return new ResponseEntity<>(taskResponse, HttpStatus.OK);
+        return ResponseEntity.ok(taskResponse);
     }
     
     
