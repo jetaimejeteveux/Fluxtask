@@ -7,9 +7,9 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5431/fluxtask
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/fluxtask
+      - SPRING_DATASOURCE_USERNAME=fluxtaskuser
+      - SPRING_DATASOURCE_PASSWORD=postgres123
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - SPRING_REDIS_HOST=redis
       - SPRING_REDIS_PORT=6379
@@ -24,8 +24,8 @@ services:
     image: postgres:15-alpine
     environment:
       - POSTGRES_DB=fluxtask
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=fluxtaskuser
+      - POSTGRES_PASSWORD=postgres123
     ports:
       - "5431:5432"
     volumes:
