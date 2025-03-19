@@ -10,6 +10,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 import com.belajar.fluxtask.domain.model.Task;
 import com.belajar.fluxtask.domain.repository.TaskRepository;
+import com.belajar.fluxtask.infrastructure.cache.RedisTaskCache;
 import com.belajar.fluxtask.infrastructure.persistence.entity.TaskEntity;
 import lombok.RequiredArgsConstructor;
 
@@ -22,31 +23,38 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TaskRepositoryImpl implements TaskRepository {
     private final TaskJpaRepository taskJpaRepository;
-    
+    private final RedisTaskCache redisTaskCache;
     @Override
     public Task save(Task task) {
-         // TODO: implement caching using redis
-
         TaskEntity taskEntity = TaskEntity.fromDomain(task);
         TaskEntity savedTaskEntity = taskJpaRepository.save(taskEntity);
+        Task savedTaskDomain = savedTaskEntity.toDomain();
+        redisTaskCache.cacheTask(savedTaskDomain);
 
-        return savedTaskEntity.toDomain();
+        return savedTaskDomain;
     }
 
     @Override
     public Optional<Task> findById(UUID id) {
-         // TODO: implement caching using redis
-
-       return taskJpaRepository.findById(id)
-            .map(TaskEntity::toDomain);
+     Optional<Task> cachedTask = redisTaskCache.getTask(id);
+     if (cachedTask.isPresent()) {
+          return cachedTask;
+     }
+     
+     return taskJpaRepository.findById(id)
+            .map(TaskEntity::toDomain)
+            .map(task -> {
+               redisTaskCache.cacheTask(task);
+               return task;
+            });
     }
 
     @Override
     public void update(Task task) {
-         // TODO: implement caching using redis
-
          TaskEntity taskEntity = TaskEntity.fromDomain(task);
          taskJpaRepository.save(taskEntity);
+
+         redisTaskCache.cacheTask(task);
     }
 
 }
